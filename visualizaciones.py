@@ -108,7 +108,7 @@ for i, año in enumerate(años_unicos, start=1):
             name=str(año),
             hole=0.4,
             textinfo="none",  
-            hovertemplate="<b>%{label}</b><br>Porcentaje: %{percent}<br>Índice: %{value}<extra></extra>"  # 👈 hover con los 3 datos
+            hovertemplate="<b>%{label}</b><br>Porcentaje: %{percent}<br>Índice: %{value}<extra></extra>"  
         ),
         1, i
     )
