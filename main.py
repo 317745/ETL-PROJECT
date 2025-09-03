@@ -23,7 +23,7 @@ def main():
     df.to_csv(r'data/csvFile.csv', index=False, encoding='utf-8')
 
 
- # Transformación ----------
+    # Transformación ----------
     transform = transformation(df)
     transform.FNCE_comprobation()
     transform.GEE_comprobation()
