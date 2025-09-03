@@ -89,18 +89,15 @@ CREATE TABLE FactInversiones (
 # 🚀 Instalación y Uso
 
 ## 1. Configurar entorno virtual
-# python -m venv .venvEtl
-# source .venvEtl/bin/activate  # Linux/Mac
-# .venvEtl\Scripts\activate  # Windows
+python -m venv .venvEtl
+source .venvEtl/bin/activate  # Linux/Mac
+.venvEtl\Scripts\activate  # Windows
 
 ## 2. Instalar dependencias
 pip install -r requirements.txt
 
-## 3. Ejecutar pipeline ETL completo
+## 3. Ejecutar pipeline ETL completo y visualizaciones
 python main.py
-
-## 4. Generar visualizaciones interactivas
-python visualizaciones.py
 
 ## 5. Ejecutar tests de validación
 python test_kpi.py
@@ -136,13 +133,13 @@ etlProject/
 ├── requirements.txt         # Dependencias de Python
 └── README.md                # Documentación del proyecto
 
-# Nota: Los directorios __pycache__ y archivos .db son generados automáticamente
-# durante la ejecución y no necesitan ser incluidos manualmente
+Nota: Los directorios __pycache__ y archivos .db son generados automáticamente
+durante la ejecución y no necesitan ser incluidos manualmente
 ## 📋 Requisitos del sistema:
-# - Python 3.12 o superior
-# - 8GB RAM recomendados
-# - 2GB espacio libre en disco
-# - Conexión a internet para instalación de paquetes
+- Python 3.12 o superior
+- 8GB RAM recomendados
+- 2GB espacio libre en disco
+- Conexión a internet para instalación de paquetes
 
 ## 📋 Proceso ETL
 
