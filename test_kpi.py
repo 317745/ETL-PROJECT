@@ -4,7 +4,7 @@ from kpi import (
     DescuentoPromedio,
     RankingRegiones,
     IndiceEficienciaEnergetica,
-    RetornoEstimadoInversion,
+    DescuentoPromedioRegion,
 )
 
 DB_NAME = "applications.db"
@@ -34,12 +34,12 @@ def main():
     print(df_indice if isinstance(df_indice, str) else df_indice.to_string(index=False))
     print("-" * 80)
 
-
-    # KPI #5 (si quieres mantener el retorno de inversión)
-    df_retorno = RetornoEstimadoInversion(DB_NAME)
-    print("KPI #5 - Retorno estimado de la inversión")
-    print(df_retorno if isinstance(df_retorno, str) else df_retorno.to_string(index=False))
+    #KPI #5
+    df_descuentopromedio = DescuentoPromedioRegion(DB_NAME)
+    print ("KPI 5")
+    print(df_descuentopromedio if isinstance(df_descuentopromedio,str) else df_descuentopromedio.to_string(index=False))
     print("-" * 80)
+
 
 
 if __name__ == "__main__":

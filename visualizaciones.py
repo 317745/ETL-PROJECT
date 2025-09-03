@@ -6,7 +6,7 @@ from kpi import (
     DescuentoPromedio,
     RankingRegiones,
     IndiceEficienciaEnergetica,
-    RetornoEstimadoInversion,
+    DescuentoPromedioRegion,
 )
 
 import plotly.express as px
@@ -19,7 +19,7 @@ df_inversion = InversionEvolucionAnual(DB_NAME)
 df_descuento = DescuentoPromedio(DB_NAME)
 df_ranking = RankingRegiones(DB_NAME)
 df_indice = IndiceEficienciaEnergetica(DB_NAME)
-df_retorno = RetornoEstimadoInversion(DB_NAME)
+df_retorno = DescuentoPromedioRegion(DB_NAME)
 
 app = Dash(__name__)
 
@@ -47,12 +47,15 @@ def kpi_card(title, value, color):
         mode="number",
         value=value,
         number={
-            "suffix": "%",
-            "valueformat": ".1f",
-            "font": {"size": 28, "color": color, "family": "Arial"}
+            "prefix": "$ ",
+            "valueformat": ",.0f",  # separador de miles, sin decimales
+            "font": {"size": 14, "color": color, "family": "Arial"}
         },
         title={"text": title, "font": {"size": 12, "color": "black", "family": "Arial"}}
-    )).update_layout(paper_bgcolor="white", plot_bgcolor="white")
+    )).update_layout(
+        paper_bgcolor="white", 
+        plot_bgcolor="white"
+    )
 
 fig_descuento_fnce = kpi_card("Descuento Promedio FNCE", promedio_fnce, "#28a745")
 fig_descuento_gee = kpi_card("Descuento Promedio GEE", promedio_gee, "#007bff")
@@ -60,27 +63,31 @@ fig_descuento_gee = kpi_card("Descuento Promedio GEE", promedio_gee, "#007bff")
 # KPI 3
 df_ranking_sorted = df_ranking.sort_values(by="total_inversion", ascending=False)
 
-fig_ranking = go.Figure(go.Bar(
-    x=df_ranking_sorted["total_inversion"],
-    y=df_ranking_sorted["region"],
-    orientation="h",
-    marker=dict(
-        color=df_ranking_sorted["total_inversion"],
-        colorscale="Blues",
-        line=dict(color="black", width=1)
-    ),
-    text=[f"{v:.2f}%" for v in df_ranking_sorted["total_inversion"]],
-    textposition="outside"
-))
-fig_ranking.update_layout(
-    title="Ranking de regiones por inversión",
-    xaxis_title="Inversión (%)",
-    yaxis_title="",
-    paper_bgcolor="white", plot_bgcolor="white",
-    font=dict(family="Arial", size=14, color="black"),
-    bargap=0.3
+fig_ranking = px.treemap(
+    df_ranking_sorted,
+    path=["region"],                   # Cada región es un cuadrito
+    values="total_inversion",          # Tamaño según inversión total
+    color="total_inversion",           # Color por inversión
+    color_continuous_scale="Blues"     # Escala de colores
 )
 
+fig_ranking.update_traces(
+    textinfo="label+value",            # Mostrar región y valor
+    hovertemplate=(
+        "<b>Región %{label}</b><br>" +
+        "Total FNCE: %{customdata[0]:,.0f}<br>" +
+        "Total GEE: %{customdata[1]:,.0f}<br>" +
+        "Inversión Total: %{value:,.0f}<extra></extra>"
+    ),
+    customdata=df_ranking_sorted[["total_FNCE", "total_GEE"]].values
+)
+
+fig_ranking.update_layout(
+    title="Mapa de calor de regiones por inversión (FNCE/GEE)",
+    paper_bgcolor="white",
+    plot_bgcolor="white",
+    font=dict(family="Arial", size=14, color="black")
+)
 # KPI 4 
 
 fig_indice = make_subplots(
@@ -114,14 +121,29 @@ fig_indice.update_layout(
     showlegend=False
 )
 # KPI 5
-fig_retorno = px.bar(df_retorno, x="region", y=["ROI_FNCE", "ROI_GEE"],
-                     barmode="group", title="Retorno estimado de la inversión (ROI)",
-                     color_discrete_map={"ROI_FNCE": "#28a745", "ROI_GEE": "#007bff"})
+df_melt = df_retorno.melt(
+    id_vars="region",
+    value_vars=["total_descuento_FNCE", "total_descuento_GEE", "total_descuento"],
+    var_name="Tipo",
+    value_name="Valor"
+)
+
+fig_retorno = px.bar(
+    df_melt, x="region", y="Valor",
+    color="Tipo",
+    barmode="group",
+    title="Retorno estimado de la inversión",
+    color_discrete_map={
+        "total_descuento_FNCE": "#28a745",
+        "total_descuento_GEE": "#007bff",
+        "total_descuento": "#00ffcc"
+    }
+)
+
 fig_retorno.update_layout(
     paper_bgcolor="white", plot_bgcolor="white",
     font=dict(family="Arial", size=14, color="black")
 )
-
 
 card_style = {
     "backgroundColor": "white",

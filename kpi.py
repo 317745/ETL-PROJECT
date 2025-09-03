@@ -77,29 +77,23 @@ def IndiceEficienciaEnergetica(dbName):
         return str(e)
 
 
-def RetornoEstimadoInversion(dbName):
+def DescuentoPromedioRegion(dbName):
     try:
         conn = sqlite3.connect(dbName)
         query = '''
-            SELECT f.region,
-       CASE 
-           WHEN SUM(f.FNCE) = 0 THEN NULL
-           ELSE ROUND(SUM(f.suma_EFA) * 1.0 / SUM(f.FNCE), 2)
-       END AS ROI_FNCE,
-       CASE 
-           WHEN SUM(f.GEE_final) = 0 THEN NULL
-           ELSE ROUND(SUM(f.suma_GEE) * 1.0 / SUM(f.GEE_final), 2)
-       END AS ROI_GEE
-FROM FactInversiones f
-GROUP BY f.region
-ORDER BY ROI_FNCE DESC;
-
+            SELECT 
+                f.region,
+                SUM(f.suma_EFA) AS total_descuento_FNCE,
+                SUM(f.suma_GEE) AS total_descuento_GEE,
+                (SUM(f.suma_EFA) + SUM(f.suma_GEE)) AS total_descuento
+            FROM FactInversiones f
+            GROUP BY f.region
+            ORDER BY total_descuento DESC;
         '''
         df = pd.read_sql_query(query, conn)
         conn.close()
         return df
     except Exception as e:
         return str(e)
-
 
 

@@ -109,9 +109,8 @@ class transformation:
         # Tomaremos como columna de certificacion ANLA a inv maquinaria y equipo (GEE),si inv maquinaria y equipo (GEE) > 0 entonces se cuenta con la certificación ANLA
         self.df['GEE_final'] = np.where(
             self.df['inv maquinaria y equipo (GEE)'] > 0,
-            self.df['GEE'] -  self.df['inv maquinaria y equipo (GEE)'] * 0.25,
-            self.df['GEE']
-        )
+            self.df['GEE'] * 0.75,
+            self.df['GEE'])
 
 
         # Devolver la columna con descuento
@@ -130,12 +129,13 @@ class transformation:
                     "costos" not in c.lower() and
                     "gastos" not in c.lower()]
         
-        # Usar suma_EFA ya calculada en FNCE_comprobation
+        denom = self.df["suma_EFA"] + self.df["suma_GEE"]
+
         for col in efa_cols:
             self.df[col + "_prop"] = np.where(
-            self.df["suma_EFA"] > 0,
-            (self.df[col] / self.df["suma_EFA"]) * 100,
-            0)
+                 denom > 0,
+                 (self.df[col] / denom) * 100,
+                 0)
 
 
     def GEE_proportion(self):
@@ -146,11 +146,14 @@ class transformation:
                    "costos" not in c.lower() and
                    "gastos" not in c.lower()]
         
+        denom = self.df["suma_EFA"] + self.df["suma_GEE"]
+
         for col in gee_cols:
             self.df[col + "_prop"] = np.where(
-            self.df["suma_GEE"] > 0, 
-            (self.df[col] / self.df["suma_GEE"]) * 100,
-            0)
+                 denom > 0,
+                 (self.df[col] / denom) * 100,
+                 0)
+
 
 
         
@@ -160,8 +163,30 @@ class transformation:
         self.GEE_proportion()
 
         # Seleccionar columnas de porcentaje
-        efa_cols = [col for col in self.df.columns if 'EFA_prop' in col]
-        gee_cols = [col for col in self.df.columns if 'GEE_prop' in col]
+        efa_cols = [c for c in self.df.columns 
+                    if 'EFA' in c 
+            and "prop" not in c.lower()  
+            and "suma" not in c.lower()
+            and "descuento" not in c.lower()
+            and "total" not in c.lower()
+            and "costo" not in c.lower()
+            and "gasto" not in c.lower()]
+        denom = self.df["suma_EFA"] + self.df["suma_GEE"]
+        for col in efa_cols:
+            self.df[col + "_prop"] = np.where(denom > 0, (self.df[col] / denom) * 100, 0)
+        
+        gee_cols = [c for c in self.df.columns 
+                    if '(GEE)' in c 
+            and "prop" not in c.lower()
+            and "suma" not in c.lower()
+            and "descuento" not in c.lower()
+            and "total" not in c.lower()
+            and "costo" not in c.lower()
+            and "gasto" not in c.lower()
+                    ]
+        denom = self.df["suma_EFA"] + self.df["suma_GEE"]
+        for col in gee_cols:
+            self.df[col + "_prop"] = np.where(denom > 0, (self.df[col] / denom) * 100, 0)
 
         # Agrupar por región y calcular promedio de cada porcentaje
         region_summary = self.df.groupby(['id_fuente', 'region'])[efa_cols + gee_cols].mean().reset_index()
@@ -186,8 +211,10 @@ class transformation:
         return region_summary
     
     def create_fact_table(self, threshold=10): 
-        efa_prop_cols = [c for c in self.df.columns if 'EFA_prop' in c]
-        gee_prop_cols = [c for c in self.df.columns if 'GEE_prop' in c]
+        efa_prop_cols = [c for c in self.df.columns if c.endswith('EFA_prop')]
+        gee_prop_cols = [c for c in self.df.columns if c.endswith('(GEE)_prop')]
+
+
 
         # Crear columnas totales por fila
         self.df['EFA_total_prop'] = self.df[efa_prop_cols].sum(axis=1)
@@ -208,29 +235,35 @@ class transformation:
 
     
    
-    
+        value_vars = [
+            col for col in (efa_prop_cols + gee_prop_cols)
+            if "suma" not in col.lower() and "descuento" not in col.lower() and col not in ["EFA_prop", "GEE_prop"]]
+
+        
     # Melt para convertir columnas en filas
         df_prop_melt = self.df.melt(
-            id_vars=['id_fuente', 'region', 'año',
-                 'FNCE', 'GEE_final',
-                 'Descuento_FNCE', 'Descuento_GEE',
-                 'suma_EFA', 'suma_GEE',
-                 'Sugerencia'],  
-        value_vars=efa_prop_cols + gee_prop_cols,
-        var_name='tipo_inversion',
-        value_name='porcentaje_inversion'
-        
-    )
+           id_vars=['id_fuente', 'region', 'año',
+             'FNCE', 'GEE_final',
+             'Descuento_FNCE', 'Descuento_GEE',
+             'suma_EFA', 'suma_GEE',
+             'Sugerencia'],  
+            value_vars=value_vars,
+            var_name='tipo_inversion',
+            value_name='porcentaje_inversion')
+
 
     # Ajustar nombre de tipo_inversion
         df_prop_melt['tipo_inversion'] = df_prop_melt['tipo_inversion'].str.replace('_prop', '')
     
+     # Filtrar solo filas con porcentaje > 0
+        df_prop_melt = df_prop_melt[df_prop_melt['porcentaje_inversion'] > 0]
 
 
     # Agregar descuento según tipo de inversión
         df_prop_melt['Descuento'] = df_prop_melt.apply(
-             lambda row: row['FNCE'] * 0.5 if 'EFA' in row['tipo_inversion'] else row['GEE_final'] * 0.5,
-             axis=1)
+            lambda row: row['Descuento_FNCE'] if 'EFA' in row['tipo_inversion'] else row['Descuento_GEE'],
+            axis=1)
+
 
         return df_prop_melt
 
