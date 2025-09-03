@@ -20,7 +20,7 @@ def main():
     dataFiltered = classDf.extractData2(dfs['data'], varDescription, vars)
     data = dataFiltered['data']
     df = classDf.selectCols3(data)['data']
-    df.to_csv(r'C:\Users\LENOVO\Downloads\ETL-PROJECT (2))', index=False, encoding='utf-8')
+    df.to_csv(r'data/csvFile.csv', index=False, encoding='utf-8')
 
 
  # Transformación ----------
