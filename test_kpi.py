@@ -40,7 +40,3 @@ def main():
     print(df_descuentopromedio if isinstance(df_descuentopromedio,str) else df_descuentopromedio.to_string(index=False))
     print("-" * 80)
 
-
-
-if __name__ == "__main__":
-    main()

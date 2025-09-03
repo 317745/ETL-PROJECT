@@ -1,6 +1,8 @@
 from dataExtraction.variabelsExtraction import varExtract
 from dataExtraction.dfExtraction import dfGenerator
 from dataTransform.dataTransformation import transformation
+from visualizaciones import app
+
 import sqlite3
 from Load.dataLoad import load_dw
 
@@ -39,3 +41,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    app.run(debug=True)

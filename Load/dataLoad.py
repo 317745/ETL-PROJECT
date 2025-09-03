@@ -91,4 +91,4 @@ def load_dw(conn, df_fact):
     # Commit
     conn.commit()
     print("DW cargado correctamente. Las tablas han sido actualizadas.")
-    print(df_fact[['suma_EFA','suma_GEE']].head())
+    #print(df_fact[['suma_EFA','suma_GEE']].head())

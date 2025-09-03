@@ -187,6 +187,3 @@ app.layout = html.Div(
         ], style={"marginBottom": "30px"})
     ]
 )
-
-if __name__ == "__main__":
-    app.run(debug=True)

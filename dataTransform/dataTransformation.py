@@ -16,7 +16,7 @@ class transformation:
         # Guardar el DataFrame limpio 
         self.df = df
         
-        print(df[['id_fuente', 'inv maquinaria y equipo (GEE)']].head())
+        #print(df[['id_fuente', 'inv maquinaria y equipo (GEE)']].head())
         
     # 1. Definir si es mejor para la empresa invertir en EFA o GEE
 
@@ -52,10 +52,10 @@ class transformation:
         if errores.empty:
             print("El total del dataset para el total FNCE es correcto")
         else:
-            print(f"Se encontraron {len(errores)} filas con errores para el total de FNCE en los siguientes id_fuente:\n")
+            pass
+            #print(f"Se encontraron {len(errores)} filas con errores para el total de FNCE en los siguientes id_fuente:\n")
         # Mostrar solo las columnas clave para revisar
-            print(
-            errores[['id_fuente','region','año', 'suma_EFA', 'inversión total EFA']].head(10).to_markdown(index=False))
+            #print(errores[['id_fuente','region','año', 'suma_EFA', 'inversión total EFA']].head(10).to_markdown(index=False))
 
         # Calcular descuento aplicado a inversión de FNCE/EFA
         self.df['Descuento_FNCE'] = self.df['suma_EFA'] * 0.5
@@ -96,10 +96,10 @@ class transformation:
         if errores.empty:
             print("El total del dataset para el total GEE es correcto")
         else:
-            print(f"Se encontraron {len(errores)} filas con errores para el total de GEE en los siguientes id_fuente:\n")
+            pass
+            #print(f"Se encontraron {len(errores)} filas con errores para el total de GEE en los siguientes id_fuente:\n")
         # Mostrar solo las columnas clave para revisar
-            print(
-            errores[['id_fuente','region','año','suma_GEE', 'inversión total (GEE)']].head(10).to_markdown(index=False))
+            #print(errores[['id_fuente','region','año','suma_GEE', 'inversión total (GEE)']].head(10).to_markdown(index=False))
 
         # Calcular descuento aplicado a inversión de GEE
         self.df['Descuento_GEE'] = self.df['suma_GEE'] * 0.5
