@@ -3,35 +3,9 @@
 ## 📌 Project Description
 This ETL (Extract, Transform, Load) project processes data from the Environmental Industrial Survey (EAI) of DANE to analyze investments and expenses in environmental protection made by the Colombian manufacturing industry between 2019-2022. The system generates insights on tax discounts, energy efficiency, and environmental investment returns.
 
-## 🏗️ Project Structureo
+## 🏗️ Project Structure
 
-etlProject/
-├── data/
-│ ├── csvFile.csv
-│ └── eai/
-│ ├── chapters/
-│ │ ├── ANONIMIZADO_CAP2_19.csv
-│ │ ├── ANONIMIZADO_CAP2_20.csv
-│ │ ├── ANONIMIZADO_CAP2_21.csv
-│ │ ├── ANONIMIZADO_CAP2_22.csv
-│ │ └── ETL_Workshop-1.pdf
-│ └── variables/
-│ └── DANE-DIMPE-EAI-2020.xml
-├── dataExtraction/
-│ ├── dfExtraction.py
-│ └── variabelsExtraction.py
-├── dataTransform/
-│ ├── dataTransformation.py
-│ └── resultTransformation.py
-├── Load/
-│ └── dataLoad.py
-├── main.py
-├── kpi.py
-├── visualizaciones.py
-├── test_kpi.py
-├── applications.db
-├── requirements.txt
-└── README.md
+![Project Structure](structure/structureProject.png)
 
 
 ## 🔧 Technologies Used
@@ -99,30 +73,7 @@ python test_kpi.py
 
 # Expected File and Directory Structure
 
-etlProject/
-├── data/                    # Main data directory
-│   └── eai/                 # Environmental Industrial Survey data
-│       ├── chapters/        # Survey chapters by year
-│       │   ├── ANONIMIZADO_CAP2_19.csv
-│       │   ├── ANONIMIZADO_CAP2_20.csv
-│       │   ├── ANONIMIZADO_CAP2_21.csv
-│       │   └── ANONIMIZADO_CAP2_22.csv
-│       └── variables/       # Metadata and variable definitions
-│           └── DANE-DIMPE-EAI-2020.xml
-├── dataExtraction/          # Data extraction module
-│   ├── dfExtraction.py
-│   └── variabelsExtraction.py
-├── dataTransform/           # Data transformation module
-│   ├── dataTransformation.py
-│   └── resultTransformation.py
-├── Load/                    # Data loading module
-│   └── dataLoad.py
-├── main.py                  # Main execution script
-├── kpi.py                   # Key indicator calculations
-├── visualizaciones.py       # Visualization generation
-├── test_kpi.py              # Validation tests
-├── requirements.txt         # Python dependencies
-└── README.md                # Project documentation
+![Expected File and Directory Structure](structure/image.png)
 
 Note: __pycache__ directories and .db files are automatically generated during execution and do not need to be included manually.
 
