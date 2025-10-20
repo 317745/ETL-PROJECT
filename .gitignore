@@ -1,0 +1,18 @@
+# Ignorar entornos virtuales
+.venv
+.venvEtl/
+venv/
+__pycache__/
+*.pyc
+
+# Ignorar bases de datos locales y binarios
+*.db
+*.sqlite
+*.sqlite3
+*.so
+*.dll
+*.exe
+
+# Ignorar CSV pesados o de salida
+/output_csv/*
+!/output_csv/*.example.csv   # (si quieres dejar ejemplos limpio
