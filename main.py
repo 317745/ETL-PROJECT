@@ -1,11 +1,9 @@
 from dataExtraction.variabelsExtraction import varExtract
 from dataExtraction.dfExtraction import dfGenerator
 from dataTransform.dataTransformation import transformation
-from visualizaciones import app
 
 import sqlite3
 from Load.dataLoad import load_dw
-
 
 def main():
     classVar = varExtract('data/eai/variables/DANE-DIMPE-EAI-2020.xml')
@@ -38,7 +36,12 @@ def main():
     load_dw(conn, df_fact)
     conn.close()
 
+    # -------------------------------
+    # Visualizaciones (Dash) - ejecutar después de ETL
+    # -------------------------------
+    from visualizaciones2 import app
+    app.run(debug=True)
+
 
 if __name__ == '__main__':
     main()
-    app.run(debug=True)
