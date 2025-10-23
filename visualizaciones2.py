@@ -1,12 +1,12 @@
 from dash import Dash, html, dcc
 import plotly.express as px
 import pandas as pd
-from kpi2 import InversionPorRegionFNCE, InversionPorRegionGEE, EvolucionAnualPorRegion
+from kpi2 import InversionPorRegionFNCE, InversionPorRegionGEE, EvolucionAnualPorRegion, TipoInversionPredominantePorRegion
 
 DB_NAME = "applications.db"
 
-# ------------------------------
-# DATOS
+
+#DATOS
 # ------------------------------
 
 df_fnce = InversionPorRegionFNCE(DB_NAME)
@@ -22,11 +22,14 @@ df_melt_general = df_regiones.melt(
     value_name="Valor"
 )
 
-# ------------------------------
-# GRÁFICOS
-# ------------------------------
+# Columna en millones
+df_melt_general['Valor_millones'] = df_melt_general['Valor'] / 1_000_000
 
-# Gráfico general: comparación FNCE vs GEE por región
+
+
+#GRAFICO ------------------------------
+
+# Gráfico general comparación FNCE vs GEE por región
 fig_general = px.bar(
     df_melt_general,
     x="region",
@@ -34,11 +37,12 @@ fig_general = px.bar(
     color="Tipo",
     barmode="group",
     title="Inversión en FNCE y GEE por región (Comparación General)",
-    text="Valor",
+    text='Valor_millones',
     height=450
 )
+fig_general.update_traces(texttemplate='%{text:.1f} M', textposition='outside')
 fig_general.update_layout(
-    yaxis_title="Inversión total",
+    yaxis_title="Inversión total (millones)",
     xaxis_title="Región",
     xaxis={'categoryorder':'category ascending'},
     legend_title_text="Tipo de inversión"
@@ -54,9 +58,7 @@ for region_name in regiones:
         var_name="Tipo",
         value_name="Valor"
     )
-    # Convertimos años a string para que aparezcan como categorías
     df_region['año'] = df_region['año'].astype(str)
-    
     fig = px.line(
         df_region,
         x="año",
@@ -72,7 +74,22 @@ for region_name in regiones:
     )
     figs_por_region.append(fig)
 
-# ------------------------------
+
+df_top_tipo = TipoInversionPredominantePorRegion(DB_NAME)
+
+fig_tipo_region = px.bar(
+    df_top_tipo,
+    x='frecuencia',
+    y='region',
+    color='tipo_inversion',
+    orientation='h',
+    text='frecuencia',
+    title='Tipo de inversión predominante por región'
+)
+fig_tipo_region.update_traces(textposition='outside')
+fig_tipo_region.update_layout(yaxis={'categoryorder':'total ascending'})
+
+
 # DASH LAYOUT
 # ------------------------------
 
@@ -100,10 +117,13 @@ app.layout = html.Div(
     children=[
         html.H1("Análisis de Inversiones FNCE y GEE por Región", style={"textAlign": "center", "marginBottom": "50px"}),
 
-        # Gráfico general
+        # Gráfico general FNCE vs GEE
         html.Div(dcc.Graph(figure=fig_general), style=card_style),
 
-        # Gráficos individuales por región (líneas de tiempo en grilla)
+        # Gráfico tipo de inversión predominante por región
+        html.Div(dcc.Graph(figure=fig_tipo_region), style=card_style),
+
+        # Gráficos individuales por región (líneas de tiempo)
         *grid_region_graphs
     ]
 )

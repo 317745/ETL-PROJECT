@@ -59,3 +59,27 @@ def EvolucionAnualPorRegion(dbName):
         return df
     finally:
         conn.close()
+
+def TipoInversionPredominantePorRegion(dbName):
+    """Tipo de inversión más frecuente por región"""
+    conn = sqlite3.connect(dbName)
+    try:
+        # Traemos región y tipo de inversión
+        df = pd.read_sql_query('''
+            SELECT r.name AS region,
+                   f.tipo_inversion
+            FROM FactInversiones f
+            JOIN DimRegion d ON f.region = d.region
+            JOIN regions r ON d.region = r.rowid
+        ''', conn)
+
+       
+        df_freq = df.groupby(['region', 'tipo_inversion']).size().reset_index(name='frecuencia')
+
+        # tipo de inversión con mayor frecuencia por región
+        df_top_tipo = df_freq.loc[df_freq.groupby('region')['frecuencia'].idxmax()].reset_index(drop=True)
+
+        return df_top_tipo
+
+    finally:
+        conn.close()
