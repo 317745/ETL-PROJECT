@@ -89,54 +89,77 @@ Note: __pycache__ directories and .db files are automatically generated during e
 - 2GB free disk space
 - Internet connection for package installation
 
-In the second delivery, the ETL pipeline was expanded and improved based on the first version.  
-The process now includes **data enrichment through API integration**, **automation using Apache Airflow**, and **KPI visualization with Dash**.  
-These additions enhance scalability, reproducibility, and analytical depth for environmental investment analysis.
+## 📋 ETL Process — Second Delivery
+
+The second delivery extends the initial ETL pipeline by incorporating **data enrichment through API integration**, **process automation with Apache Airflow**, and **dashboards built with Dash (Plotly)**.  
+These improvements enhanced scalability, traceability, and the analytical capacity of the environmental investment dataset.
 
 ---
 
-### 🔍 Extraction (Extract)
-- **Data sources**: 4 datasets from the *Environmental Industrial Survey (EAI)* of DANE (2019–2022).  
-- **Initial volume**: 2,940 columns per dataset.  
-- **Strategic selection**: 148 relevant variables from Chapter 2.  
-- **Metadata processing**: XML file parsing to extract variable structure.  
-- **External integration**: Added data from the **Colombia API** to enrich datasets with geographic details (regions and departments).  
-- **Processed years**: 2019, 2020, 2021, and 2022.  
-- **Automation**: Extraction tasks are now part of an **Apache Airflow DAG**, ensuring repeatable and schedulable data pipelines.
+### 🔍 1. Extraction (Extract)
+
+In this phase, data are collected and consolidated from multiple sources:
+
+- **DANE CSV files (EAI)**: Corresponding to the years **2019–2022**, each dataset containing approximately **2,940 columns**.  
+- **Colombian Public API (api-colombia.com)**: Accessed via Swagger from a Jupyter Notebook using the `requests` and `pandas` libraries.  
+  This source provided official information on **regions** and **departments**, strengthening the geographical dimension of the analysis.  
+- **XML files**: Containing metadata and variable structure, used to identify and extract the **148 relevant variables** from *Chapter 2* of the EAI.
+
+This combination of sources enabled the creation of a **complete, updated, and validated dataset** for subsequent pipeline stages.
 
 ---
 
-### 🔄 Transformation (Transform)
-- **Data validation**: Verification of business and energy-related calculations.  
-- **Error detection**: Identification of incomplete or inconsistent records.  
-- **Temporal normalization**: Standardization of date and period formats.  
+### 🔄 2. Transformation (Transform)
+
+During this stage, data cleansing, validation, and enrichment were performed within the `dataTransformation.py` module.  
+The main operations include:
+
+- **Data validation**: Verification of reported values and business calculations.  
+- **Error handling**: Identification and correction of incomplete or inconsistent records.  
+- **Temporal normalization**: Standardization of reference dates and reporting periods.  
 - **Metric calculations**:
-  - Energy efficiency (*GEE_final*).  
-  - Tax deductions for investments in *FNCE* and *GEE*.  
-  - Percentage of environmental investment relative to total assets.  
-- **Data enrichment**: Added region names from the external API.  
-- **Estimation models**: Projection of potential tax benefits aligned with government energy policies.  
-- **Integration for analysis**: Generation of key performance indicators (*KPIs*) for visualization and reporting.
+  - Energy Efficiency and Clean Power Generation (**GEE_final**, **FNCE**)  
+  - Tax Credits (**Descuento_FNCE**, **Descuento_GEE**)  
+  - Environmental Investment Percentages  
+- **Estimations**: Projection of potential tax benefits and returns associated with environmental investments.  
+- **Data enrichment**: Incorporation of regional and departmental information obtained from the API.
+
+This phase guarantees **data quality, consistency, and analytical reliability**.
 
 ---
 
-### 📤 Loading (Load)
-- **Database model**: Dimensional schema implemented in SQLite.  
-- **Created tables**:
-  - 4 dimension tables: *DimEmpresa*, *DimRegion*, *DimAño*, *DimTipoInversion*.  
-  - 1 fact table: *FactInversiones*.  
-- **Optimization**:
-  - Indexed key fields (region, year, investment type).  
-  - Established relationships for analytical queries.  
-- **Final output**: Structured and optimized dataset for further analysis and visualization.
+### 📤 3. Loading (Load)
+
+The transformed data are stored in a **SQLite database** structured under a **dimensional model**, implemented in the `dataLoad.py` module.
+
+**Database structure:**
+- **Dimension Tables**:
+  - `DimEnterprise`  
+  - `DimRegion`  
+  - `DimYear`  
+  - `DimTypeInvestment`
+- **Fact Table**:
+  - `FactInversiones`: Consolidates investments by company, region, year, and type of investment.  
+
+Additionally, the **API-derived regional and departmental data** were integrated into the corresponding dimension tables to enhance geospatial analysis.
 
 ---
 
-### ⚙️ Automation with Airflow
-- Implementation of a **fully automated pipeline** using **Apache Airflow**.  
-- Each ETL stage (Extract, Transform, Load) is defined as an individual *task* in the DAG.  
-- Enables **monitoring**, **error recovery**, and **data lineage tracking**.  
-- Guarantees **reproducibility** and **consistency** of the entire ETL process.
+### ⚙️ 4. Pipeline Flow and Automation
+
+The entire ETL flow is automated and orchestrated by **Apache Airflow**, using the `etl_run_scripts.py` script as the main controller.  
+This automation ensures **consistency, traceability, and scheduled execution** of the process.
+
+**Execution order:**
+1. **Extraction** → Data retrieval from CSV, XML, and API sources.  
+2. **Transformation** → Data cleaning, validation, and environmental metric computation.  
+3. **Loading** → Insertion of transformed data into the SQLite dimensional schema.  
+4. **Visualization** → Automatic update of KPIs and charts in the **Dash (Plotly)** dashboard, including:
+   - Energy efficiency indicators  
+   - Regional investment heatmaps  
+   - Annual investment evolution
+
+---
 
 ---
 
