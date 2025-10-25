@@ -89,39 +89,66 @@ Note: __pycache__ directories and .db files are automatically generated during e
 - 2GB free disk space
 - Internet connection for package installation
 
-## 📋 ETL Process
+In the second delivery, the ETL pipeline was expanded and improved based on the first version.  
+The process now includes **data enrichment through API integration**, **automation using Apache Airflow**, and **KPI visualization with Dash**.  
+These additions enhance scalability, reproducibility, and analytical depth for environmental investment analysis.
+
+---
+
 ### 🔍 Extraction (Extract)
-- **Data sources**: 4 datasets from the Environmental Industrial Survey (EAI) of DANE (2019-2022)
-- **Initial volume**: 2940 columns per dataset
-- **Strategic selection**: 148 relevant variables from Chapter 2
-- **Metadata**: XML file parsing for variable structure
-- **Processed years**: 2019, 2020, 2021, 2022
+- **Data sources**: 4 datasets from the *Environmental Industrial Survey (EAI)* of DANE (2019–2022).  
+- **Initial volume**: 2,940 columns per dataset.  
+- **Strategic selection**: 148 relevant variables from Chapter 2.  
+- **Metadata processing**: XML file parsing to extract variable structure.  
+- **External integration**: Added data from the **Colombia API** to enrich datasets with geographic details (regions and departments).  
+- **Processed years**: 2019, 2020, 2021, and 2022.  
+- **Automation**: Extraction tasks are now part of an **Apache Airflow DAG**, ensuring repeatable and schedulable data pipelines.
+
+---
 
 ### 🔄 Transformation (Transform)
-- **Data validation**: Verification of reported business calculations
-- **Inconsistency detection**: Identification of erroneous or incomplete reports
-- **Temporal normalization**: Unification of date formats and periods
+- **Data validation**: Verification of business and energy-related calculations.  
+- **Error detection**: Identification of incomplete or inconsistent records.  
+- **Temporal normalization**: Standardization of date and period formats.  
 - **Metric calculations**:
-  - Energy efficiency (GEE_final)
-  - Tax discounts (Descuento_FNCE, Descuento_GEE)
-  - Environmental investment percentages
-- **Estimations**: Projection of applicable tax discounts
+  - Energy efficiency (*GEE_final*).  
+  - Tax deductions for investments in *FNCE* and *GEE*.  
+  - Percentage of environmental investment relative to total assets.  
+- **Data enrichment**: Added region names from the external API.  
+- **Estimation models**: Projection of potential tax benefits aligned with government energy policies.  
+- **Integration for analysis**: Generation of key performance indicators (*KPIs*) for visualization and reporting.
+
+---
 
 ### 📤 Loading (Load)
-- **Database model**: Dimensional schema in SQLite
+- **Database model**: Dimensional schema implemented in SQLite.  
 - **Created tables**:
-  - 4 dimension tables (DimEmpresa, DimRegion, DimAño, DimTipoInversion)
-  - 1 fact table (FactInversiones)
-- **Optimization**: Indexes and relationships for efficient queries
-- **Final output**: Structured data for analysis and reporting
+  - 4 dimension tables: *DimEmpresa*, *DimRegion*, *DimAño*, *DimTipoInversion*.  
+  - 1 fact table: *FactInversiones*.  
+- **Optimization**:
+  - Indexed key fields (region, year, investment type).  
+  - Established relationships for analytical queries.  
+- **Final output**: Structured and optimized dataset for further analysis and visualization.
 
-### 📊 Pipeline Flow
-1. **Initial extraction** → Raw data from CSV files
-2. **Basic cleaning** → Removal of duplicates and null values
-3. **Specific transformation** → Environmental metric calculations
-4. **Final validation** → Data quality control
-5. **Database loading** → Storage in dimensional model
-6. **Report generation** → Automated reports by company
+---
+
+### ⚙️ Automation with Airflow
+- Implementation of a **fully automated pipeline** using **Apache Airflow**.  
+- Each ETL stage (Extract, Transform, Load) is defined as an individual *task* in the DAG.  
+- Enables **monitoring**, **error recovery**, and **data lineage tracking**.  
+- Guarantees **reproducibility** and **consistency** of the entire ETL process.
+
+---
+
+### 📊 Pipeline Flow Overview
+1. **Extraction** → Automatic data retrieval from EAI and Colombia API.  
+2. **Cleaning & Validation** → Removal of duplicates and missing data handling.  
+3. **Transformation** → Energy and tax-related metric calculations.  
+4. **Enrichment** → Integration of regional and geographic information.  
+5. **Load** → Storage into a dimensional SQLite database.  
+6. **Automation** → Scheduled and monitored through Apache Airflow.  
+7. **Analysis & Visualization** → Interactive dashboards and KPIs built with Dash.
+
 
 ### ⚙️ Transformation Tools
 - **Pandas**: Advanced data manipulation
