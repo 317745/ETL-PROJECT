@@ -1,7 +1,11 @@
 {
     "files.associations": {
         "plyconfig.json": "jsonc"
+<<<<<<< HEAD
     },
     "python.linting.pylintEnabled": true,
     "python.pythonPath": ".venv\\Scripts\\python.exe"
+=======
+    }
+>>>>>>> a3444f351782da21601c24841af946ca5ee96b6c
 }

@@ -128,5 +128,9 @@ app.layout = html.Div(
     ]
 )
 
+<<<<<<< HEAD
     if __name__ == "__main__":
+=======
+if __name__ == "__main__":
+>>>>>>> a3444f351782da21601c24841af946ca5ee96b6c
     app.run_server(debug=True)
