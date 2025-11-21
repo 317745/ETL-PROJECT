@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  airflow-init:
+    image: apache/airflow:2.10.2
+    user: "0:0"
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW_UID: "50000"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      # opcional: instala libs extra del requirements.txt en el init
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
+    volumes:
+      - ./:/opt/airflow/project
+    command: >
+      bash -c "
+        pip install --user -r /opt/airflow/project/requirements.txt || true &&
+        airflow db init &&
+        airflow users create
+          --role Admin --username admin --password admin
+          --firstname A --lastname F --email admin@example.com
+      "
+
+  airflow-webserver:
+    image: apache/airflow:2.10.2
+    depends_on:
+      - airflow-init
+    ports:
+      - "8080:8080"
+    environment:
+      AIRFLOW_UID: "50000"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    volumes:
+      - ./:/opt/airflow/project
+    command: webserver
+
+  airflow-scheduler:
+    image: apache/airflow:2.10.2
+    depends_on:
+      - airflow-webserver
+    environment:
+      AIRFLOW_UID: "50000"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/dags
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    volumes:
+      - ./:/opt/airflow/project
+    command: scheduler
+
+volumes:
+  pgdata:
